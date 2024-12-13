@@ -1,180 +1,102 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
+  Command,
   SquareTerminal,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/components/nav-main";
+import { NavProjects } from "@/components/nav-projects";
+import { NavUser } from "@/components/nav-user";
+import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { AppContext } from "@/context/AppContext"
+} from "@/components/ui/sidebar";
+import { AppContext } from "@/context/AppContext";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
+export function AppSidebar({ ...props }) {
+  const { user, existingSessions } = React.useContext(AppContext);
+
+  const llm = [
     {
-      name: "Acme Inc",
+      name: "OpenAI",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
     {
-      name: "Acme Corp.",
+      name: "Gemini",
       logo: AudioWaveform,
       plan: "Startup",
     },
     {
-      name: "Evil Corp.",
+      name: "Custom",
       logo: Command,
       plan: "Free",
     },
-  ],
-  navMain: [
+  ];
+
+  // Dynamically create the history items based on existing sessions
+  const menu = [
     {
-      title: "Playground",
+      title: "History",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+        ...existingSessions.map((session) => {
+          // Log the entire session object to see its structure
+          console.log("Session:", session);
 
-export function AppSidebar({
-  ...props
-}) {
-  const {user} = React.useContext(AppContext)
+          // Find the last user message from the session
+          const lastUserMessage = session.messages
+            .slice()
+            .reverse()
+            .find((msg) => msg.role === "user");
+
+          // If no user message is found, set a default
+          const messageContent =
+            lastUserMessage?.content || "No recent message";
+
+          console.log("Last User Message:", messageContent); // Log the last user message to check if it's correct
+
+          return {
+            title: messageContent.slice(0, 30) + "...", // Show the first few words of the last user message
+            url: `?session=${session.sessionId}`, // URL can be adjusted to navigate to the session
+            key: session.sessionId, // Use sessionId as the key to avoid duplicates
+          };
+        }),
+      ],
+    },
+  ];
+
+  const projects = [];
+
   return (
-    (<Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={llm} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={menu} />
+        <NavProjects projects={projects} />
       </SidebarContent>
       <SidebarFooter>
-      <NavUser user={{ name: user?.displayName, email: user?.email, avatar: user?.photoURL }} />
+        <NavUser
+          user={{
+            name: user?.displayName,
+            email: user?.email,
+            avatar: user?.photoURL,
+          }}
+        />
       </SidebarFooter>
       <SidebarRail />
-    </Sidebar>)
+    </Sidebar>
   );
 }

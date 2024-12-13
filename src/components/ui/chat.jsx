@@ -26,6 +26,8 @@ export function Chat({
   const isEmpty = messages.length === 0;
   const isTyping = lastMessage?.role === "user";
 
+  
+
   const messageOptions = useCallback(
     (message) => ({
       actions: onRateResponse ? (
@@ -146,7 +148,7 @@ export const ChatContainer = forwardRef(({ className, ...props }, ref) => {
   return (
     <div
       ref={ref}
-      className={cn("grid max-h-full w-full grid-rows-[1fr_auto]", className)}
+      className={cn(`grid max-h-full w-full grid-rows-[1fr_auto]`, className)}
       {...props}
     />
   );

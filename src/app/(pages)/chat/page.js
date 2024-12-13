@@ -5,7 +5,8 @@ import { AppContext } from "@/context/AppContext";
 import { Chatbot } from "@/components/chatbot/page";
 
 function Chat() {
-  const { user, loader } = useContext(AppContext); // Access user and loader from context
+  const { user, loader } =
+    useContext(AppContext); // Access user and loader from context
   const router = useRouter();
 
   useEffect(() => {
